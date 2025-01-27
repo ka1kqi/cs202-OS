@@ -9,7 +9,7 @@ void
 set_to_fifteen(int *ptr)
 {
 	// TODO: Your code here.
-	assert(0);
+	*ptr=15;
 }
 
 // Return the sum of all elements in the given array.  The array
@@ -26,8 +26,12 @@ int
 array_sum(int *arr, int n)
 {
 	// TODO: Your code here.
-	assert(0);
-	return -1;
+	int total=0;
+	for(int i=0;i<n;i++) {
+		total+=*arr;
+		arr++;
+	}
+	return total;
 }
 
 
