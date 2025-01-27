@@ -37,8 +37,13 @@ list_insert(struct list_node *head, int value)
 {
 	assert(head != NULL);
 
+	struct list_node *new_node = alloc_node();
+	new_node->value=value;
+	new_node->next=head->next;
+
+	head->next=new_node;
+
 	// TODO: Your code here.
-	assert(0);
 }
 
 // Return a pointer to the last node in a linked list, starting
@@ -63,8 +68,13 @@ list_end(struct list_node *head)
 	assert(head != NULL);
 
 	// TODO: Your code here.
-	assert(0);
-	return NULL;
+
+	struct list_node *temp=head;
+	while(temp->next!=NULL) {
+		temp=temp->next;
+	}
+
+	return temp;
 }
 
 // Return the number of nodes in a linked list, starting from the
@@ -89,8 +99,14 @@ list_size(struct list_node *head)
 	assert(head != NULL);
 
 	// TODO: Your code here.
-	assert(0);
-	return 0;
+	int size=0;
+	struct list_node *temp=head;
+	while(temp!=NULL) {
+		size++;
+		temp=temp->next;
+	}
+
+	return size;
 }
 
 // Return a pointer to the first node in the given linked list
@@ -121,7 +137,23 @@ list_find(struct list_node *head, int value, struct list_node **predp)
 	assert(predp != NULL);
 
 	// TODO: Your code here.
-	assert(0);
+	if(head->value==value) {
+		*predp=NULL;
+		return head;
+	}
+
+	//we cant start from the second node because we already checked head node as base case
+	struct list_node *temp=head->next;
+	*predp=head;
+	while(temp!=NULL) {
+		if(temp->value==value) {
+			return temp;
+		}
+		*predp=temp;
+		temp=temp->next;
+	}
+
+	*predp=NULL;
 	return NULL;
 }
 
@@ -183,7 +215,26 @@ list_remove(struct list_node **headp, int value)
 	assert(headp != NULL);
 	assert(*headp != NULL);
 
+
 	// TODO: Your code here.
-	assert(0);
-	return 0;
+	struct list_node *head_ref=*headp;
+	struct list_node **prev=&head_ref;
+
+	struct list_node *node = list_find(head_ref,value,prev);
+
+	if(node==NULL)
+		return 0;
+
+	else if(node==*headp) {
+		//if we are removing the head node
+		node=node->next;
+		free_node(*headp);
+		*headp=node;
+		return 1;
+	}
+	//otherwise we need to set prev.next to node.next
+	(*prev)->next=node->next;
+	free_node(node);
+
+	return 1;
 }
