@@ -12,8 +12,10 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
+#include <dirent.h>
 
 static int err_code;
+static int num_files;
 
 /*
  * here are some function signatures and macros that may be helpful.
@@ -58,6 +60,8 @@ void list_dir(char* dirname, bool list_long, bool list_all, bool recursive);
  *     PRINT_PERM_CHAR(sb.st_mode, S_IRUSR, "r");
  */
 #define PRINT_PERM_CHAR(mode, mask, ch) printf("%s", (mode & mask) ? ch : "-");
+
+#define SET_ERROR(n) err_code |= (1<<n);
 
 /*
  * Get username for uid. Return 1 on failure, 0 otherwise.
@@ -150,14 +154,26 @@ bool test_file(char* pathandname) {
 bool is_dir(char* pathandname) {
     /* TODO: fillin */
 
-    return false;
+    struct stat sb;
+    stat(pathandname,&sb);
+    return(S_ISDIR(sb.st_mode));
 }
 
 /* convert the mode field in a struct stat to a file type, for -l printing */
 const char* ftype_to_str(mode_t mode) {
     /* TODO: fillin */
 
-    return "?";
+    //first char
+    if(S_ISDIR(mode)) {
+        return "d";
+    }
+    else if (S_ISREG(mode)){
+        return "-";
+    }
+    else { 
+        //other
+        return "?";
+    }
 }
 
 /* list_file():
@@ -176,6 +192,55 @@ const char* ftype_to_str(mode_t mode) {
  */
 void list_file(char* pathandname, char* name, bool list_long) {
     /* TODO: fill in*/
+    if(!test_file(pathandname)){ 
+        //pathandname does not lead to a valid file
+        //handle_error("File doesn't exist: ",pathandname);
+        return;
+    }
+    num_files++;
+
+    struct stat sb;
+    stat(pathandname, &sb);
+
+    if(list_long) {
+        char uid_buff[128];
+        char gid_buff[128];
+        int err_uname=uname_for_uid(sb.st_uid,uid_buff,128);
+        int err_grp=group_for_gid(sb.st_gid,gid_buff,128);
+
+        int64_t fsize=sb.st_size; //long long
+
+        struct timespec ts={sb.st_mtime,0}; //timespec from stat causing error, created own timespec struct to 
+                                            //pass to date_string()
+        char date_buf[32];
+        date_string(&ts,date_buf,32); 
+
+        const char *ftype_buff=ftype_to_str(sb.st_mode);
+
+        //permissions string
+        printf("%s",ftype_buff);
+        //user
+        PRINT_PERM_CHAR(sb.st_mode,S_IRUSR,"r");
+        PRINT_PERM_CHAR(sb.st_mode,S_IWUSR,"w");
+        PRINT_PERM_CHAR(sb.st_mode,S_IXUSR,"x");
+        //group
+        PRINT_PERM_CHAR(sb.st_mode,S_IRGRP,"r");
+        PRINT_PERM_CHAR(sb.st_mode,S_IWGRP,"w");
+        PRINT_PERM_CHAR(sb.st_mode,S_IXGRP,"x");
+        //others
+        PRINT_PERM_CHAR(sb.st_mode,S_IROTH,"r");
+        PRINT_PERM_CHAR(sb.st_mode,S_IWOTH,"w");
+        PRINT_PERM_CHAR(sb.st_mode,S_IXOTH,"x");
+
+        //print in order
+        printf(" %s %s %ld %s ",uid_buff,gid_buff,fsize,date_buf);
+        
+    }
+    //lists the file regardless of list_long
+    if(S_ISDIR(sb.st_mode)&&strcmp(name,".")!=0&&strcmp(name,"..")!=0) //if directory then we need to print the "/"s
+        printf("%s/\n",name);
+    else 
+        printf("%s\n",name);
 }
 
 /* list_dir():
@@ -198,11 +263,59 @@ void list_dir(char* dirname, bool list_long, bool list_all, bool recursive) {
      *       closedir()
      *   See the lab description for further hints
      */
+    if(!test_file(dirname)) {
+        //handle_error()
+        return;
+    }
+
+    DIR *dir;
+    dir=opendir(dirname);  
+    struct dirent *file;
+    while((file=readdir(dir))) {
+        //parent or current diretory
+
+        char newpath[256];
+        snprintf(newpath,256,"%s",dirname);
+        strncat(newpath,"/",2);
+        strncat(newpath,file->d_name,strlen(file->d_name));
+
+        if(file->d_type==DT_DIR) { 
+            //if we are recursive and we reach a directory
+            if(list_all && (strcmp(file->d_name,".")==0||strcmp(file->d_name,"..")==0)) {
+                list_file(newpath,file->d_name,list_long);
+            }
+
+            if(recursive) {
+                //create new path
+                //recur
+                printf("%s:\n",file->d_name);
+                list_dir(newpath,list_long,list_all,recursive);
+                printf("\n");
+            }
+        } 
+        else if (file->d_type==DT_REG){
+            list_file(newpath,file->d_name,list_long);
+        }
+        //list files of current dir
+    }
+
+    closedir(dir);
+    
+    
 }
 
 int main(int argc, char* argv[]) {
     // This needs to be int since C does not specify whether char is signed or
     // unsigned.
+
+
+    //testing
+    char cwd[256];
+    getcwd(cwd,256);
+    list_dir(cwd,1,1,1);
+
+
+    /* DONT TOUCH FOR NOW
     int opt;
     err_code = 0;
     bool list_long = false, list_all = false;
@@ -232,11 +345,18 @@ int main(int argc, char* argv[]) {
                 break;
                 // TODO: you will need to add items here to handle the
                 // cases that the user enters "-l" or "-R"
+            case 'l':
+                list_long=true;
+                break;
+            case 'R':
+                break;
             default:
                 printf("Unimplemented flag %d\n", opt);
                 break;
         }
     }
+
+    
 
     // TODO: Replace this.
     if (optind < argc) {
@@ -251,4 +371,5 @@ int main(int argc, char* argv[]) {
 
     NOT_YET_IMPLEMENTED("Listing files");
     exit(err_code);
+    */
 }
