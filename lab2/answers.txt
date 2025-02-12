@@ -1,6 +1,6 @@
-Name:    <FirstName LastName>
-net ID:       xxnnn
-NYU ID(N#):   N99999999
+Name:    <Kaikai Du>
+net ID:       axd2025
+NYU ID(N#):   N12164047
 
 Number of late days you are taking on this lab:
 

@@ -61,7 +61,12 @@ void list_dir(char* dirname, bool list_long, bool list_all, bool recursive);
  */
 #define PRINT_PERM_CHAR(mode, mask, ch) printf("%s", (mode & mask) ? ch : "-");
 
-#define SET_ERROR(n) err_code |= (1<<n);
+//set error code
+#define SET_ERROR(n) (err_code |= (1<<n));
+
+//checks if a bit in err_code is 1
+#define CHECK_ERROR(n) (err_code & (1<<n));
+
 
 /*
  * Get username for uid. Return 1 on failure, 0 otherwise.
@@ -116,6 +121,9 @@ static void help() {
     /* TODO: add to this */
     printf("ls: List files\n");
     printf("\t--help: Print this help\n");
+    printf("\t    -l: Long list file info\n");
+    printf("\t    -a: List all files including files beginning with \".\" and pseudo-files\n");
+    printf("\t    -R: Recursively list all files including subdirectories\n");
     exit(0);
 }
 
@@ -129,6 +137,13 @@ void handle_error(char* what_happened, char* fullname) {
     PRINT_ERROR("ls", what_happened, fullname);
 
     // TODO: your code here: inspect errno and set err_code accordingly.
+    SET_ERROR(6);
+    if(errno==EACCES) {
+        SET_ERROR(4);
+    }
+    else if(errno==ENOENT) {
+        SET_ERROR(3);
+    }
     return;
 }
 
@@ -193,10 +208,10 @@ const char* ftype_to_str(mode_t mode) {
 void list_file(char* pathandname, char* name, bool list_long) {
     /* TODO: fill in*/
     if(!test_file(pathandname)){ 
-        //pathandname does not lead to a valid file
-        //handle_error("File doesn't exist: ",pathandname);
+
         return;
     }
+
     num_files++;
 
     struct stat sb;
@@ -207,6 +222,16 @@ void list_file(char* pathandname, char* name, bool list_long) {
         char gid_buff[128];
         int err_uname=uname_for_uid(sb.st_uid,uid_buff,128);
         int err_grp=group_for_gid(sb.st_gid,gid_buff,128);
+
+        if(err_uname||err_grp) {
+            SET_ERROR(5);
+            if(err_uname) {
+                sprintf(uid_buff,"%d",sb.st_uid);
+            }
+            if(err_grp) {
+                sprintf(gid_buff,"%d",sb.st_gid);
+            }
+        }
 
         int64_t fsize=sb.st_size; //long long
 
@@ -236,11 +261,11 @@ void list_file(char* pathandname, char* name, bool list_long) {
         printf(" %s %s %ld %s ",uid_buff,gid_buff,fsize,date_buf);
         
     }
-    //lists the file regardless of list_long
+    //list name
     if(S_ISDIR(sb.st_mode)&&strcmp(name,".")!=0&&strcmp(name,"..")!=0) //if directory then we need to print the "/"s
-        printf("%s/\n",name);
+        printf("%s/",name);
     else 
-        printf("%s\n",name);
+        printf("%s",name);
 }
 
 /* list_dir():
@@ -264,61 +289,68 @@ void list_dir(char* dirname, bool list_long, bool list_all, bool recursive) {
      *   See the lab description for further hints
      */
     if(!test_file(dirname)) {
-        //handle_error()
         return;
     }
 
     DIR *dir;
     dir=opendir(dirname);  
     struct dirent *file;
+
+    int dir_size=0;
+    int mx_size=10;
+    char** sub_dirs=(char**)malloc(10*sizeof(char*));
+
     while((file=readdir(dir))) {
         //parent or current diretory
 
         char newpath[256];
-        snprintf(newpath,256,"%s",dirname);
-        strncat(newpath,"/",2);
-        strncat(newpath,file->d_name,strlen(file->d_name));
+        snprintf(newpath,256,"%s/%s",dirname,file->d_name);
 
         if(file->d_type==DT_DIR) { 
-            //if we are recursive and we reach a directory
-            if(list_all && (strcmp(file->d_name,".")==0||strcmp(file->d_name,"..")==0)) {
-                list_file(newpath,file->d_name,list_long);
+            if(strcmp(file->d_name,".")==0||strcmp(file->d_name,"..")==0) {
+                if(list_all) {
+                    list_file(newpath,file->d_name,list_long);
+                    printf("\n");
+                }
+                continue;
             }
 
-            if(recursive) {
+            else if(recursive) {
                 //create new path
                 //recur
-                printf("%s:\n",file->d_name);
-                list_dir(newpath,list_long,list_all,recursive);
-                printf("\n");
+                if(dir_size==mx_size) {
+                    sub_dirs=(char**)realloc(sub_dirs,sizeof(sub_dirs)+(2*mx_size+1)*sizeof(char*));
+                    mx_size=2*mx_size+1;
+                }
+                sub_dirs[dir_size]=(char*)malloc(256*sizeof(char));
+                sprintf(sub_dirs[dir_size],"%s",newpath);
+                dir_size++;
             }
-        } 
-        else if (file->d_type==DT_REG){
-            list_file(newpath,file->d_name,list_long);
         }
-        //list files of current dir
+        list_file(newpath,file->d_name,list_long);
+        printf("\n");
     }
 
+    if(recursive) {
+        printf("\n");
+        for(int i=0;i<dir_size;i++) {
+            printf("%s:\n",sub_dirs[i]);
+            list_dir(sub_dirs[i],list_long,list_all,recursive);
+            free(sub_dirs[i]);
+        }
+    }
+
+    free(sub_dirs);
     closedir(dir);
-    
-    
 }
 
 int main(int argc, char* argv[]) {
     // This needs to be int since C does not specify whether char is signed or
     // unsigned.
 
-
-    //testing
-    char cwd[256];
-    getcwd(cwd,256);
-    list_dir(cwd,1,1,1);
-
-
-    /* DONT TOUCH FOR NOW
     int opt;
     err_code = 0;
-    bool list_long = false, list_all = false;
+    bool list_long = false, list_all = false, recursive=false;
     // We make use of getopt_long for argument parsing, and this
     // (single-element) array is used as input to that function. The `struct
     // option` helps us parse arguments of the form `--FOO`. Refer to `man 3
@@ -328,7 +360,7 @@ int main(int argc, char* argv[]) {
 
     // This loop is used for argument parsing. Refer to `man 3 getopt_long` to
     // better understand what is going on here.
-    while ((opt = getopt_long(argc, argv, "1a", opts, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "1alR", opts, NULL)) != -1) {
         switch (opt) {
             case '\a':
                 // Handle the case that the user passed in `--help`. (In the
@@ -343,12 +375,11 @@ int main(int argc, char* argv[]) {
             case 'a':
                 list_all = true;
                 break;
-                // TODO: you will need to add items here to handle the
-                // cases that the user enters "-l" or "-R"
             case 'l':
                 list_long=true;
                 break;
             case 'R':
+                recursive=true;
                 break;
             default:
                 printf("Unimplemented flag %d\n", opt);
@@ -359,17 +390,18 @@ int main(int argc, char* argv[]) {
     
 
     // TODO: Replace this.
-    if (optind < argc) {
-        printf("Optional arguments: ");
+    if(optind<argc) {   
+        for(int i=0;i<argc-optind;i++) {
+            printf("%s:\n",argv[optind+i]);
+            //sprintf(argv[optind+i],"%s","./");
+            list_dir(argv[optind+i],list_long,list_all,recursive);
+            printf("\n");
+        }
     }
-    for (int i = optind; i < argc; i++) {
-        printf("%s ", argv[i]);
+    else {
+        char cwd[256];
+        getcwd(cwd,256);
+        list_dir(cwd,list_long,list_all,recursive);
     }
-    if (optind < argc) {
-        printf("\n");
-    }
-
-    NOT_YET_IMPLEMENTED("Listing files");
     exit(err_code);
-    */
 }
