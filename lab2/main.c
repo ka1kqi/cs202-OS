@@ -16,6 +16,7 @@
 
 static int err_code;
 static int num_files;
+static bool count=false;
 
 /*
  * here are some function signatures and macros that may be helpful.
@@ -212,8 +213,6 @@ void list_file(char* pathandname, char* name, bool list_long) {
         return;
     }
 
-    num_files++;
-
     struct stat sb;
     stat(pathandname, &sb);
 
@@ -225,15 +224,16 @@ void list_file(char* pathandname, char* name, bool list_long) {
 
         if(err_uname||err_grp) {
             SET_ERROR(5);
+            SET_ERROR(6);
             if(err_uname) {
-                sprintf(uid_buff,"%d",sb.st_uid);
+                snprintf(uid_buff,128,"%d",sb.st_uid);
             }
             if(err_grp) {
-                sprintf(gid_buff,"%d",sb.st_gid);
+                snprintf(gid_buff,128,"%d",sb.st_gid);
             }
         }
 
-        int64_t fsize=sb.st_size; //long long
+        long fsize=sb.st_size; //long long
 
         struct timespec ts={sb.st_mtime,0}; //timespec from stat causing error, created own timespec struct to 
                                             //pass to date_string()
@@ -257,8 +257,10 @@ void list_file(char* pathandname, char* name, bool list_long) {
         PRINT_PERM_CHAR(sb.st_mode,S_IWOTH,"w");
         PRINT_PERM_CHAR(sb.st_mode,S_IXOTH,"x");
 
+        int links=sb.st_nlink;
+
         //print in order
-        printf(" %s %s %ld %s ",uid_buff,gid_buff,fsize,date_buf);
+        printf(" %d %s %s %ld %s ",links,uid_buff,gid_buff,fsize,date_buf);
         
     }
     //list name
@@ -302,13 +304,18 @@ void list_dir(char* dirname, bool list_long, bool list_all, bool recursive) {
 
     while((file=readdir(dir))) {
         //parent or current diretory
-
+        if(file->d_name[0]=='.'&&!list_all)
+            continue;
         char newpath[256];
         snprintf(newpath,256,"%s/%s",dirname,file->d_name);
 
         if(file->d_type==DT_DIR) { 
             if(strcmp(file->d_name,".")==0||strcmp(file->d_name,"..")==0) {
                 if(list_all) {
+                    if(count){
+                        num_files++;
+                        continue;
+                    }
                     list_file(newpath,file->d_name,list_long);
                     printf("\n");
                 }
@@ -323,18 +330,23 @@ void list_dir(char* dirname, bool list_long, bool list_all, bool recursive) {
                     mx_size=2*mx_size+1;
                 }
                 sub_dirs[dir_size]=(char*)malloc(256*sizeof(char));
-                sprintf(sub_dirs[dir_size],"%s",newpath);
+                snprintf(sub_dirs[dir_size],256,"%s",newpath);
                 dir_size++;
             }
         }
-        list_file(newpath,file->d_name,list_long);
-        printf("\n");
+        num_files++;
+        if(!count) {
+            list_file(newpath,file->d_name,list_long);
+            printf("\n");
+        }
     }
 
     if(recursive) {
-        printf("\n");
+        if(!count)
+            printf("\n");
         for(int i=0;i<dir_size;i++) {
-            printf("%s:\n",sub_dirs[i]);
+            if(!count)
+                printf("%s:\n",sub_dirs[i]);
             list_dir(sub_dirs[i],list_long,list_all,recursive);
             free(sub_dirs[i]);
         }
@@ -360,7 +372,7 @@ int main(int argc, char* argv[]) {
 
     // This loop is used for argument parsing. Refer to `man 3 getopt_long` to
     // better understand what is going on here.
-    while ((opt = getopt_long(argc, argv, "1alR", opts, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "1alRn", opts, NULL)) != -1) {
         switch (opt) {
             case '\a':
                 // Handle the case that the user passed in `--help`. (In the
@@ -381,27 +393,31 @@ int main(int argc, char* argv[]) {
             case 'R':
                 recursive=true;
                 break;
+            case 'n':  
+                count=true;
+                break;
             default:
                 printf("Unimplemented flag %d\n", opt);
                 break;
         }
     }
-
-    
+    if(count) list_long=false;
 
     // TODO: Replace this.
     if(optind<argc) {   
         for(int i=0;i<argc-optind;i++) {
-            printf("%s:\n",argv[optind+i]);
-            //sprintf(argv[optind+i],"%s","./");
+            if(!count)
+                printf("%s:\n",argv[optind+i]);
             list_dir(argv[optind+i],list_long,list_all,recursive);
-            printf("\n");
         }
     }
     else {
         char cwd[256];
         getcwd(cwd,256);
         list_dir(cwd,list_long,list_all,recursive);
+    }
+    if(count) {
+        printf("%d\n",num_files);
     }
     exit(err_code);
 }

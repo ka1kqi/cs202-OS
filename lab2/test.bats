@@ -61,6 +61,7 @@ teardown() {
         printf "Failed: Diff between output and expected:\n"
         diff <(echo "$result") <(echo "$compare")
     fi
+
     [ "$result" = "$compare" ]
 }
 
