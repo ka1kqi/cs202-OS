@@ -186,6 +186,9 @@ const char* ftype_to_str(mode_t mode) {
     else if (S_ISREG(mode)){
         return "-";
     }
+    else if(S_ISLNK(mode)) {
+        return "l";
+    }
     else { 
         //other
         return "?";
@@ -214,7 +217,10 @@ void list_file(char* pathandname, char* name, bool list_long) {
     }
 
     struct stat sb;
-    stat(pathandname, &sb);
+    lstat(pathandname, &sb);
+
+    //for symlink printing
+    char* target=(char*)malloc(256*sizeof(char));;
 
     if(list_long) {
         char uid_buff[128];
@@ -257,17 +263,28 @@ void list_file(char* pathandname, char* name, bool list_long) {
         PRINT_PERM_CHAR(sb.st_mode,S_IWOTH,"w");
         PRINT_PERM_CHAR(sb.st_mode,S_IXOTH,"x");
 
+        //get links and print
         int links=sb.st_nlink;
 
-        //print in order
+        if(S_ISLNK(sb.st_mode)) {
+            int bytes_read=readlink(pathandname,target,256);
+            target[bytes_read]='\0';
+        }
+
         printf(" %d %s %s %ld %s ",links,uid_buff,gid_buff,fsize,date_buf);
-        
     }
     //list name
-    if(S_ISDIR(sb.st_mode)&&strcmp(name,".")!=0&&strcmp(name,"..")!=0) //if directory then we need to print the "/"s
+    if(S_ISDIR(sb.st_mode)&&strcmp(name,".")!=0&&strcmp(name,"..")!=0)
         printf("%s/",name);
-    else 
-        printf("%s",name);
+    else {
+        //symlink printing
+        if(S_ISLNK(sb.st_mode)&&list_long) 
+            printf("%s -> %s",name,target);
+        //reg file printing
+        else
+            printf("%s",name);
+    }
+    free(target);
 }
 
 /* list_dir():
@@ -290,6 +307,7 @@ void list_dir(char* dirname, bool list_long, bool list_all, bool recursive) {
      *       closedir()
      *   See the lab description for further hints
      */
+    //不知道
     if(!test_file(dirname)) {
         return;
     }
@@ -406,7 +424,7 @@ int main(int argc, char* argv[]) {
     // TODO: Replace this.
     if(optind<argc) {   
         for(int i=0;i<argc-optind;i++) {
-            if(!count)
+            if(!count&&recursive)
                 printf("%s:\n",argv[optind+i]);
             list_dir(argv[optind+i],list_long,list_all,recursive);
         }
