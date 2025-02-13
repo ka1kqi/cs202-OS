@@ -316,6 +316,7 @@ void list_dir(char* dirname, bool list_long, bool list_all, bool recursive) {
     dir=opendir(dirname);  
     struct dirent *file;
 
+    //vars for array for recursive printing
     int dir_size=0;
     int mx_size=10;
     char** sub_dirs=(char**)malloc(10*sizeof(char*));
@@ -328,6 +329,7 @@ void list_dir(char* dirname, bool list_long, bool list_all, bool recursive) {
         snprintf(newpath,256,"%s/%s",dirname,file->d_name);
 
         if(file->d_type==DT_DIR) { 
+            //pseudofile handling
             if(strcmp(file->d_name,".")==0||strcmp(file->d_name,"..")==0) {
                 if(list_all) {
                     if(count){
@@ -341,24 +343,25 @@ void list_dir(char* dirname, bool list_long, bool list_all, bool recursive) {
             }
 
             else if(recursive) {
-                //create new path
-                //recur
+                //resize array
                 if(dir_size==mx_size) {
                     sub_dirs=(char**)realloc(sub_dirs,sizeof(sub_dirs)+(2*mx_size+1)*sizeof(char*));
                     mx_size=2*mx_size+1;
                 }
+                //copy subdir to array
                 sub_dirs[dir_size]=(char*)malloc(256*sizeof(char));
                 snprintf(sub_dirs[dir_size],256,"%s",newpath);
                 dir_size++;
             }
         }
+        //count file
         num_files++;
         if(!count) {
             list_file(newpath,file->d_name,list_long);
             printf("\n");
         }
     }
-
+    //recur
     if(recursive) {
         if(!count)
             printf("\n");
@@ -428,7 +431,7 @@ int main(int argc, char* argv[]) {
                 printf("%s:\n",argv[optind+i]);
             list_dir(argv[optind+i],list_long,list_all,recursive);
         }
-    }
+    } 
     else {
         char cwd[256];
         getcwd(cwd,256);
