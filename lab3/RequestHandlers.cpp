@@ -1,4 +1,4 @@
-
+#include "RequestHandlers.h"
 /*
  * ------------------------------------------------------------------
  * add_item_handler --
@@ -185,5 +185,7 @@ void
 stop_handler(void* args)
 {
     // TODO: Your code here.
+    sthread_exit();
+    
 }
 

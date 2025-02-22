@@ -3,6 +3,9 @@
 
 #include "EStore.h"
 #include "TaskQueue.h"
+#include "sthread.h"
+
+#include "RequestGenerator.h"
 
 class Simulation {
     public:
@@ -42,6 +45,12 @@ static void*
 supplierGenerator(void* arg)
 {
     // TODO: Your code here.
+    Simulation *sim=(Simulation*)arg;
+    SupplierRequestGenerator srg(&sim->supplierTasks);
+    srg.enqueueTasks(sim->maxTasks,&sim->store);
+    srg.enqueueStops(sim->numSuppliers);
+
+    exit(0);
     return NULL; // Keep compiler happy.
 }
 
@@ -73,6 +82,12 @@ static void*
 customerGenerator(void* arg)
 {
     // TODO: Your code here.
+    Simulation *sim=(Simulation*)arg;
+    CustomerRequestGenerator crg(&sim->customerTasks,sim->store.fineModeEnabled());
+    crg.enqueueTasks(sim->maxTasks,&sim->store);
+    crg.enqueueStops(sim->numCustomers);
+
+    exit(0);
     return NULL; // Keep compiler happy.
 }
 
@@ -94,6 +109,7 @@ static void*
 supplier(void* arg)
 {
     // TODO: Your code here.
+    Simulation *sim=(Simulation*)arg;
     return NULL; // Keep compiler happy.
 }
 
@@ -115,6 +131,7 @@ static void*
 customer(void* arg)
 {
     // TODO: Your code here.
+    Simulation *sim=(Simulation*)arg;
     return NULL; // Keep compiler happy.
 }
 
@@ -145,6 +162,13 @@ static void
 startSimulation(int numSuppliers, int numCustomers, int maxTasks, bool useFineMode)
 {
     // TODO: Your code here.
+    //create sim object
+    Simulation s(useFineMode);
+    s.numSuppliers=numSuppliers;
+    s.numCustomers=numCustomers;
+    s.maxTasks=maxTasks;
+
+
 }
 
 int main(int argc, char **argv)

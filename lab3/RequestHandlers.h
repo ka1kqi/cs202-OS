@@ -1,5 +1,7 @@
 #pragma once
 
+#include "sthread.h"
+
 void add_item_handler(void *args);
 void remove_item_handler(void *args);
 void add_stock_handler(void *args);
