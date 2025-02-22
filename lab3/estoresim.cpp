@@ -49,8 +49,7 @@ supplierGenerator(void* arg)
     SupplierRequestGenerator srg(&sim->supplierTasks);
     srg.enqueueTasks(sim->maxTasks,&sim->store);
     srg.enqueueStops(sim->numSuppliers);
-
-    exit(0);
+    sthread_exit();
     return NULL; // Keep compiler happy.
 }
 
@@ -86,8 +85,7 @@ customerGenerator(void* arg)
     CustomerRequestGenerator crg(&sim->customerTasks,sim->store.fineModeEnabled());
     crg.enqueueTasks(sim->maxTasks,&sim->store);
     crg.enqueueStops(sim->numCustomers);
-
-    exit(0);
+    sthread_exit();
     return NULL; // Keep compiler happy.
 }
 
@@ -110,6 +108,12 @@ supplier(void* arg)
 {
     // TODO: Your code here.
     Simulation *sim=(Simulation*)arg;
+    Task t;
+    while(1) {
+        t=sim->supplierTasks.dequeue();
+        //exeute task
+        (*(t.handler))(t.arg);
+    }
     return NULL; // Keep compiler happy.
 }
 
@@ -132,6 +136,11 @@ customer(void* arg)
 {
     // TODO: Your code here.
     Simulation *sim=(Simulation*)arg;
+    Task t;
+    while(1) {
+        t=sim->customerTasks.dequeue();
+        (*(t.handler))(t.arg);
+    }
     return NULL; // Keep compiler happy.
 }
 
@@ -164,11 +173,38 @@ startSimulation(int numSuppliers, int numCustomers, int maxTasks, bool useFineMo
     // TODO: Your code here.
     //create sim object
     Simulation s(useFineMode);
+    //keep track of threads
+    std::vector<sthread_t> threads;
+
     s.numSuppliers=numSuppliers;
     s.numCustomers=numCustomers;
     s.maxTasks=maxTasks;
 
+    //generators
+    sthread_t c_gen;
+    sthread_create(&c_gen,&customerGenerator,&s);
+    threads.push_back(c_gen);
+    sthread_t s_gen;
+    sthread_create(&s_gen,&supplierGenerator,&s);
+    threads.push_back(s_gen);
 
+    //entities
+    for(int i=0;i<numSuppliers;i++) {
+        sthread_t st;
+        sthread_create(&st,&supplier,&s);
+        threads.push_back(st);
+    }
+    for(int i=0;i<numCustomers;i++) {
+        sthread_t ct;
+        sthread_create(&ct,&customer,&s);
+        threads.push_back(ct);
+    }
+
+    //wait for all threads to finish executing
+    for(sthread_t t:threads) {
+        sthread_join(t);
+    }
+    return;
 }
 
 int main(int argc, char **argv)

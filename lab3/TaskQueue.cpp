@@ -108,10 +108,10 @@ dequeue()
     // TODO: Your code here.
     smutex_lock(&tqm);
 
-    while(size()==0){
+    while(size()==0)
         //wait for enqueue
         scond_wait(&tqc,&tqm);
-    }
+    
 
     Task t=tq.front();
     tq.pop();
