@@ -1,10 +1,5 @@
-
 #include "TaskQueue.h"
-#include <queue>
 
-std::queue<Task> tq;
-smutex_t tqm;
-scond_t tqc;
 
 TaskQueue::
 TaskQueue()
@@ -19,8 +14,9 @@ TaskQueue::
 ~TaskQueue()
 {
     // TODO: Your code here.
-    //unlock and destroy mutex
+    //destroy mutex
     smutex_unlock(&tqm);
+    scond_destroy(&tqc);
     smutex_destroy(&tqm);
 }
 
@@ -39,11 +35,8 @@ int TaskQueue::
 size()
 {
     // TODO: Your code here.
-    smutex_lock(&tqm);
-    int size=tq.size();
-    smutex_unlock(&tqm);
-
-    return size; // Keep compiler happy until routine done.
+    //same as empty
+    return qsize; // Keep compiler happy until routine done.
 }
 
 /*
@@ -61,10 +54,8 @@ bool TaskQueue::
 empty()
 {
     // TODO: Your code here.
-    smutex_lock(&tqm);
-    bool empty=tq.empty();
-    smutex_unlock(&tqm);
-    return empty; // Keep compiler happy until routine done.
+    //this assumes we already have a mutex so no need to lock and unlock
+    return qsize==0; // Keep compiler happy until routine done.
 }
 
 /*
@@ -84,10 +75,10 @@ enqueue(Task task)
     // TODO: Your code here.
     smutex_lock(&tqm);
     tq.push(task);
-    //singal to deque
-    scond_signal(&tqc,&tqm);
+    qsize++;
+    //signal to deque that an item has been added
+    scond_broadcast(&tqc,&tqm);
     smutex_unlock(&tqm);
-
 }
 
 /*
@@ -108,13 +99,12 @@ dequeue()
     // TODO: Your code here.
     smutex_lock(&tqm);
 
-    while(size()==0)
+    while(empty())
         //wait for enqueue
         scond_wait(&tqc,&tqm);
-    
-
     Task t=tq.front();
     tq.pop();
+    qsize--;
     smutex_unlock(&tqm);
     return t; // Keep compiler happy until routine done.
 }

@@ -1,0 +1,379 @@
+build/estoresim
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 38, quantity - 92, price - $4293.95, discount - 0.00
+joining thread 1
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 79, budget $23907.15
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 9, budget $9490.51
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 16, quantity - 47, price - $3066.67, discount - 0.00
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 58, quantity - 99, price - $9751.43, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 35, budget $27398.10
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 47, quantity - 43, price - $382.27, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 85, budget $34760.57
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 57, quantity - 79, price - $2836.03, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 9, budget $15334.86
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 37, quantity - 84, price - $6817.39, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 5, budget $18770.10
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 63, quantity - 78, price - $1490.36, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 53, budget $15945.84
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 68, quantity - 88, price - $9754.62, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 37, budget $32982.82
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 33, quantity - 78, price - $5536.95, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 83, budget $23248.30
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 88, quantity - 11, price - $7889.82, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 30, budget $14153.67
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 19, quantity - 72, price - $7922.39, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 98, budget $10614.00
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 57, quantity - 41, price - $5688.87, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 40, budget $31364.44
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 50, quantity - 82, price - $4157.56, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 79, budget $26684.09
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 65, quantity - 25, price - $4691.47, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 52, budget $6070.36
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 6, quantity - 32, price - $1719.38, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 83, budget $33532.21
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 14, quantity - 5, price - $7940.23, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 24, budget $21685.54
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 71, quantity - 46, price - $7692.95, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 94, budget $28669.93
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 46, quantity - 33, price - $5051.51, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 86, budget $21225.92
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 77, quantity - 1, price - $9179.88, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 10, budget $23383.67
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 9, quantity - 67, price - $7867.27, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 33, budget $27429.31
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 34, budget $31223.27
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 3, quantity - 70, price - $3579.91, discount - 0.00
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 43, quantity - 51, price - $5933.48, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 47, budget $29907.24
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 56, quantity - 21, price - $5003.70, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 2, budget $17893.17
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 65, quantity - 69, price - $1167.48, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 50, budget $9144.86
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 12, quantity - 75, price - $2004.27, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 12, budget $6069.89
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 41, quantity - 17, price - $7273.74, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 7, budget $16104.07
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 99, quantity - 52, price - $9254.10, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 69, budget $25330.97
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 78, quantity - 98, price - $8521.12, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 28, budget $32948.11
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 22, quantity - 34, price - $6244.85, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 94, budget $22189.39
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 50, quantity - 88, price - $694.11, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 71, budget $26810.61
+[31mexecuting supplier[0m
+[32mexecuting customer[0m
+Handling AddStockReq: item_id - 83, additional_stock - 41
+Handling BuyItemReq: item_id - 99, budget $8490.48
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 81, budget $7695.40
+[31mexecuting supplier[0m
+Handling AddStockReq: item_id - 97, additional_stock - 100
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 81, budget $5675.97
+[31mexecuting supplier[0m
+Handling AddStockReq: item_id - 32, additional_stock - 19
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 59, budget $13110.62
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 8, quantity - 46, price - $3507.43, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 82, budget $19913.80
+[31mexecuting supplier[0m
+Handling AddStockReq: item_id - 76, additional_stock - 20
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 81, budget $25593.40
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 4, quantity - 84, price - $7568.53, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 39, budget $6708.46
+[31mexecuting supplier[0m
+Handling ChangeItemDiscountReq: item_id - 87, new_discount - 0.43
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 74, budget $19903.61
+[31mexecuting supplier[0m
+Handling RemoveItemReq: item_id - 25
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 43, budget $21905.74
+[31mexecuting supplier[0m
+Handling setStoreDiscount: new_discount - 0.41
+[31mexecuting supplier[0m
+Handling AddStockReq: item_id - 98, additional_stock - 91
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 26, budget $19179.07
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 33, budget $7096.71
+[31mexecuting supplier[0m
+Handling ChangeItemPriceReq: item_id - 13, new_price - $8686.01
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 84, budget $26446.34
+[31mexecuting supplier[0m
+Handling setStoreDiscount: new_discount - 0.29
+[31mexecuting supplier[0m
+Handling AddStockReq: item_id - 90, additional_stock - 64
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 77, budget $33971.30
+[31mexecuting supplier[0m
+Handling ChangeItemDiscountReq: item_id - 59, new_discount - 0.13
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 89, budget $18417.85
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 31, budget $23064.66
+[31mexecuting supplier[0m
+Handling RemoveItemReq: item_id - 74
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 92, budget $26004.50
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 88, quantity - 96, price - $1206.00, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 14, budget $5547.59
+[31mexecuting supplier[0m
+Handling ChangeItemPriceReq: item_id - 37, new_price - $5366.49
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 45, budget $8777.90
+[31mexecuting supplier[0m
+Handling SetShippingCostReq: new_cost - $36.29
+[31mexecuting supplier[0m
+Handling ChangeItemPriceReq: item_id - 29, new_price - $8932.44
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 71, budget $13709.15
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 97, quantity - 60, price - $3849.06, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 67, budget $15846.47
+[31mexecuting supplier[0m
+Handling RemoveItemReq: item_id - 98
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 65, budget $24325.59
+[31mexecuting supplier[0m
+Handling setStoreDiscount: new_discount - 0.06
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 61, budget $33172.77
+[31mexecuting supplier[0m
+Handling setStoreDiscount: new_discount - 0.82
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 73, budget $30923.11
+[31mexecuting supplier[0m
+Handling ChangeItemPriceReq: item_id - 53, new_price - $1015.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 22, budget $9367.99
+[31mexecuting supplier[0m
+Handling ChangeItemPriceReq: item_id - 93, new_price - $67.80
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 15, budget $18914.22
+[31mexecuting supplier[0m
+Handling ChangeItemPriceReq: item_id - 83, new_price - $8010.18
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 4, budget $21733.80
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 64, quantity - 24, price - $7853.99, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 12, budget $16823.97
+[31mexecuting supplier[0m
+Handling setStoreDiscount: new_discount - 0.80
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 73, budget $26314.97
+[31mexecuting supplier[0m
+Handling RemoveItemReq: item_id - 51
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 94, budget $29653.46
+[31mexecuting supplier[0m
+Handling SetShippingCostReq: new_cost - $56.57
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 19, budget $25686.81
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 93, quantity - 49, price - $219.32, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 86, budget $15286.13
+[31mexecuting supplier[0m
+Handling RemoveItemReq: item_id - 60
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 17, budget $30698.50
+[31mexecuting supplier[0m
+Handling setStoreDiscount: new_discount - 0.68
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 31, budget $17301.55
+[31mexecuting supplier[0m
+Handling ChangeItemPriceReq: item_id - 30, new_price - $169.78
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 50, budget $32272.80
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 73, quantity - 69, price - $3345.53, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 58, budget $17752.56
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 56, quantity - 73, price - $6672.32, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 27, budget $17521.66
+[31mexecuting supplier[0m
+Handling AddStockReq: item_id - 72, additional_stock - 99
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 82, budget $30672.58
+[31mexecuting supplier[0m
+Handling SetShippingCostReq: new_cost - $16.49
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 70, budget $7802.32
+[31mexecuting supplier[0m
+Handling ChangeItemDiscountReq: item_id - 48, new_discount - 0.85
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 31, budget $5850.55
+[31mexecuting supplier[0m
+Handling AddStockReq: item_id - 13, additional_stock - 87
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 45, budget $15268.93
+[31mexecuting supplier[0m
+Handling AddStockReq: item_id - 19, additional_stock - 100
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 25, budget $17169.29
+[31mexecuting supplier[0m
+Handling SetShippingCostReq: new_cost - $66.40
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 37, budget $28364.40
+[31mexecuting supplier[0m
+Handling AddStockReq: item_id - 64, additional_stock - 7
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 99, budget $22215.36
+[31mexecuting supplier[0m
+Handling RemoveItemReq: item_id - 81
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 46, budget $32142.72
+[31mexecuting supplier[0m
+Handling AddStockReq: item_id - 16, additional_stock - 5
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 30, budget $29706.16
+[31mexecuting supplier[0m
+Handling SetShippingCostReq: new_cost - $68.13
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 72, budget $21865.54
+[31mexecuting supplier[0m
+Handling ChangeItemDiscountReq: item_id - 58, new_discount - 0.77
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 72, budget $25364.15
+[31mexecuting supplier[0m
+Handling SetShippingCostReq: new_cost - $37.23
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 40, budget $20352.99
+[31mexecuting supplier[0m
+Handling RemoveItemReq: item_id - 33
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 36, budget $28594.71
+[31mexecuting supplier[0m
+Handling setStoreDiscount: new_discount - 0.55
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 29, budget $25264.97
+[31mexecuting supplier[0m
+Handling ChangeItemPriceReq: item_id - 85, new_price - $9354.30
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 38, budget $5740.09
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 6, quantity - 44, price - $686.14, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 23, budget $18312.76
+[31mexecuting supplier[0m
+Handling setStoreDiscount: new_discount - 0.63
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 30, budget $31813.35
+[31mexecuting supplier[0m
+Handling AddStockReq: item_id - 82, additional_stock - 61
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 72, budget $9974.04
+[31mexecuting supplier[0m
+Handling RemoveItemReq: item_id - 64
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 4, budget $30341.14
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 92, quantity - 96, price - $8936.85, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 97, budget $28580.14
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 37, budget $32688.74
+[31mexecuting supplier[0m
+Handling SetShippingCostReq: new_cost - $77.52
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 61, budget $10548.87
+[31mexecuting supplier[0m
+Handling ChangeItemPriceReq: item_id - 34, new_price - $3766.27
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 82, budget $33620.09
+[31mexecuting supplier[0m
+Handling AddItemReq: item_id - 90, quantity - 87, price - $8633.56, discount - 0.00
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 65, budget $29211.20
+[31mexecuting supplier[0m
+Handling AddStockReq: item_id - 38, additional_stock - 90
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 25, budget $8503.73
+[31mexecuting supplier[0m
+Handling RemoveItemReq: item_id - 81
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 40, budget $12302.51
+[31mexecuting supplier[0m
+Handling RemoveItemReq: item_id - 25
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 99, budget $29038.70
+[31mexecuting supplier[0m
+Handling ChangeItemDiscountReq: item_id - 95, new_discount - 0.51
+[32mexecuting customer[0m
+Handling BuyItemReq: item_id - 44, budget $16722.22
+[31mexecuting supplier[0m
+Handling AddStockReq: item_id - 57, additional_stock - 62
+[31mexecuting su

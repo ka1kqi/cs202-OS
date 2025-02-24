@@ -1,4 +1,5 @@
 #include "RequestHandlers.h"
+#include "Request.h"
 //why no provided includes :(
 /*
  * ------------------------------------------------------------------
@@ -13,10 +14,18 @@
  *
  * ------------------------------------------------------------------
  */
+
+static int numstopped=0;
 void 
 add_item_handler(void *args)
 {
     // TODO: Your code here.
+    struct AddItemReq *req=(AddItemReq*)args;
+    printf("Handling AddItemReq: item_id - %d, quantity - %d, price - $%0.2lf, discount - %0.2lf\n",req->item_id,
+                req->quantity,req->price,req->discount);
+    req->store->addItem(req->item_id,req->quantity,req->price,req->discount);
+    free(req);
+    return;
 }
 
 /*
@@ -36,6 +45,11 @@ void
 remove_item_handler(void *args)
 {
     // TODO: Your code here.
+    struct RemoveItemReq *req=(RemoveItemReq*)args;
+    printf("Handling RemoveItemReq: item_id - %d\n",req->item_id);
+    req->store->removeItem(req->item_id);
+    free(req);
+    return;
 }
 
 /*
@@ -55,6 +69,11 @@ void
 add_stock_handler(void *args)
 {
     // TODO: Your code here.
+    struct AddStockReq* req=(AddStockReq*)args;
+    printf("Handling AddStockReq: item_id - %d, additional_stock - %d\n",req->item_id,req->additional_stock);
+    req->store->addStock(req->item_id,req->additional_stock);
+    free(req);
+    return;
 }
 
 /*
@@ -74,6 +93,11 @@ void
 change_item_price_handler(void *args)
 {
     // TODO: Your code here.
+    struct ChangeItemPriceReq *req=(ChangeItemPriceReq*)args;
+    printf("Handling ChangeItemPriceReq: item_id - %d, new_price - $%0.2lf\n",req->item_id,req->new_price);
+    req->store->priceItem(req->item_id,req->new_price);
+    free(req);
+    return;
 }
 
 /*
@@ -93,6 +117,11 @@ void
 change_item_discount_handler(void *args)
 {
     // TODO: Your code here.
+    struct ChangeItemDiscountReq *req=(ChangeItemDiscountReq*)args;
+    printf("Handling ChangeItemDiscountReq: item_id - %d, new_discount - %0.2lf\n",req->item_id,req->new_discount);
+    req->store->discountItem(req->item_id,req->new_discount);
+    free(req);
+    return;
 }
 
 /*
@@ -112,6 +141,11 @@ void
 set_shipping_cost_handler(void *args)
 {
     // TODO: Your code here.
+    struct SetShippingCostReq *req=(SetShippingCostReq*)args;
+    printf("Handling SetShippingCostReq: new_cost - $%0.2lf\n",req->new_cost);
+    req->store->setShippingCost(req->new_cost);
+    free(req);
+    return;
 }
 
 /*
@@ -131,6 +165,11 @@ void
 set_store_discount_handler(void *args)
 {
     // TODO: Your code here.
+    struct SetStoreDiscountReq *req=(SetStoreDiscountReq*)args;
+    printf("Handling setStoreDiscount: new_discount - %0.2lf\n",req->new_discount);
+    req->store->setStoreDiscount(req->new_discount);
+    free(req);
+    return;
 }
 
 /*
@@ -149,6 +188,12 @@ set_store_discount_handler(void *args)
 void
 buy_item_handler(void *args)
 {
+    
+    struct BuyItemReq *req=(BuyItemReq*)args;
+    printf("Handling BuyItemReq: item_id - %d, budget $%0.2lf\n",req->item_id,req->budget);
+    req->store->buyItem(req->item_id,req->budget);
+    free(req);
+    return;
     // TODO: Your code here.
 }
 
@@ -169,6 +214,11 @@ void
 buy_many_items_handler(void *args)
 {
     // TODO: Your code here.
+    struct BuyManyItemsReq* req=(BuyManyItemsReq*)args;
+    printf("Handling BuyManyItemsReq: NOT YET IMPLEMENTED\n");
+    req->store->buyManyItems(&req->item_ids,req->budget);
+    free(req);
+    return;
 }
 
 /*
@@ -186,6 +236,7 @@ void
 stop_handler(void* args)
 {
     // TODO: Your code here.
+    printf("Handling StopHandlerReq: QUITTING %d\n",++numstopped);
     sthread_exit();  
 }
 

@@ -80,7 +80,8 @@ enqueueStops(int num)
 {
     // TODO: Your code here.
     for(int i=0;i<num;i++) {
-        Task t{&stop_handler,NULL};
+        //stophandler doesnt need args so we set to null
+        Task t{stop_handler,NULL};
         taskQueue->enqueue(t);
     }
 }

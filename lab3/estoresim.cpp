@@ -1,11 +1,15 @@
 #include <cstring>
 #include <cstdlib>
+#include <iostream>
 
 #include "EStore.h"
 #include "TaskQueue.h"
 #include "sthread.h"
 
 #include "RequestGenerator.h"
+
+smutex_t customer_lock;
+smutex_t supplier_lock;
 
 class Simulation {
     public:
@@ -112,6 +116,7 @@ supplier(void* arg)
     while(1) {
         t=sim->supplierTasks.dequeue();
         //exeute task
+        printf("\033[31mexecuting supplier\033[0m\n");
         (*(t.handler))(t.arg);
     }
     return NULL; // Keep compiler happy.
@@ -139,6 +144,7 @@ customer(void* arg)
     Task t;
     while(1) {
         t=sim->customerTasks.dequeue();
+        printf("\033[32mexecuting customer\033[0m\n");
         (*(t.handler))(t.arg);
     }
     return NULL; // Keep compiler happy.
@@ -183,10 +189,8 @@ startSimulation(int numSuppliers, int numCustomers, int maxTasks, bool useFineMo
     //generators
     sthread_t c_gen;
     sthread_create(&c_gen,&customerGenerator,&s);
-    threads.push_back(c_gen);
     sthread_t s_gen;
     sthread_create(&s_gen,&supplierGenerator,&s);
-    threads.push_back(s_gen);
 
     //entities
     for(int i=0;i<numSuppliers;i++) {
@@ -201,6 +205,9 @@ startSimulation(int numSuppliers, int numCustomers, int maxTasks, bool useFineMo
     }
 
     //wait for all threads to finish executing
+    sthread_join(c_gen);
+    sthread_join(s_gen);
+
     for(sthread_t t:threads) {
         sthread_join(t);
     }
@@ -221,4 +228,3 @@ int main(int argc, char **argv)
     startSimulation(10, 10, 100, useFineMode);
     return 0;
 }
-
