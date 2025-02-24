@@ -187,7 +187,6 @@ set_store_discount_handler(void *args)
 void
 buy_item_handler(void *args)
 {
-    return;
     struct BuyItemReq *req=(BuyItemReq*)args;
     printf("Handling BuyItemReq: item_id - %d, budget $%0.2lf\n",req->item_id,req->budget);
     req->store->buyItem(req->item_id,req->budget);
