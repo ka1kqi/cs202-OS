@@ -116,7 +116,7 @@ supplier(void* arg)
     while(1) {
         t=sim->supplierTasks.dequeue();
         //exeute task
-        printf("\033[31mexecuting supplier\033[0m\n");
+        //printf("\033[31mexecuting supplier\033[0m\n");
         (*(t.handler))(t.arg);
     }
     return NULL; // Keep compiler happy.
@@ -144,7 +144,7 @@ customer(void* arg)
     Task t;
     while(1) {
         t=sim->customerTasks.dequeue();
-        printf("\033[32mexecuting customer\033[0m\n");
+        //printf("\033[32mexecuting customer\033[0m\n");
         (*(t.handler))(t.arg);
     }
     return NULL; // Keep compiler happy.

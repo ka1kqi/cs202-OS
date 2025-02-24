@@ -1,23 +1,40 @@
-Name: 
-net ID: 
-NYU ID(N#): 
+Name: Kaikai Du
+net ID: axd2025
+NYU ID(N#): N12164047
 
 Collaborators (who you talked to about the lab, what you talked about):
-
+None 
 
 Source material that you consulted:
 
 
 Other acknowledgments:
-
+...
 
 -------------------------------------------------------------------------------
 
 Answers to exercises G1--G3:
 
+(G1) 
+Rescursively search this directory for instances of the specified string
+
+./EStore.h:    smutex_t esm;
+./TaskQueue.h:    smutex_t tqm;
+./sthread.cpp:void smutex_init(smutex_t *mutex)
+./sthread.cpp:void smutex_destroy(smutex_t *mutex)
+./sthread.cpp:void smutex_lock(smutex_t *mutex)
+./sthread.cpp:void smutex_unlock(smutex_t *mutex)
+
+(G2)
+grep "Task " RequestGenerator.cpp
+grep "return" *.h
+
+(G3)
+The command returns lines in my code where I used a mutex function from sthread.h
+This command will find all instances of the expression "smutex" that are followed by some other characters then parentheses with characters inside, followed by a semicolon.
 -------------------------------------------------------------------------------
 
 Anything else you'd like us to know:
-
+no
 
 Extra credit exercise(s) (describe what you coded):

@@ -79,6 +79,9 @@ class EStore {
     //cond for waiting for price an inv
     scond_t esc_inv;
     scond_t esc_pr;
+    //for fine grained locking, we lock every individual item
+    //indexed same as inventory
+    std::vector<smutex_t> inv_mut;
 
     public:
 
@@ -102,5 +105,6 @@ class EStore {
     void buyManyItems(std::vector<int>* item_ids, double budget);
 
     bool fineModeEnabled() const { return fineMode; }
+
 };
 

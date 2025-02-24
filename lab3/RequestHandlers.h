@@ -1,8 +1,10 @@
 #pragma once
 
+#include <iostream>
 #include "sthread.h"
 #include "EStore.h"
-#include <iostream>
+#include "Request.h"
+
 
 void add_item_handler(void *args);
 void remove_item_handler(void *args);

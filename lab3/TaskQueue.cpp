@@ -15,9 +15,8 @@ TaskQueue::
 {
     // TODO: Your code here.
     //destroy mutex
-    smutex_unlock(&tqm);
-    scond_destroy(&tqc);
     smutex_destroy(&tqm);
+    scond_destroy(&tqc);
 }
 
 /*
@@ -98,7 +97,6 @@ dequeue()
 {
     // TODO: Your code here.
     smutex_lock(&tqm);
-
     while(empty())
         //wait for enqueue
         scond_wait(&tqc,&tqm);

@@ -1,5 +1,4 @@
 #include "RequestHandlers.h"
-#include "Request.h"
 //why no provided includes :(
 /*
  * ------------------------------------------------------------------
@@ -15,7 +14,7 @@
  * ------------------------------------------------------------------
  */
 
-static int numstopped=0;
+
 void 
 add_item_handler(void *args)
 {
@@ -188,7 +187,7 @@ set_store_discount_handler(void *args)
 void
 buy_item_handler(void *args)
 {
-    
+    return;
     struct BuyItemReq *req=(BuyItemReq*)args;
     printf("Handling BuyItemReq: item_id - %d, budget $%0.2lf\n",req->item_id,req->budget);
     req->store->buyItem(req->item_id,req->budget);
@@ -215,7 +214,11 @@ buy_many_items_handler(void *args)
 {
     // TODO: Your code here.
     struct BuyManyItemsReq* req=(BuyManyItemsReq*)args;
-    printf("Handling BuyManyItemsReq: NOT YET IMPLEMENTED\n");
+    printf("Handling BuyManyItemsReq: ");
+    for(int i=0;i<(int)req->item_ids.size();i++) {
+        printf("%d ",req->item_ids[i]);
+    }
+    printf("\n");
     req->store->buyManyItems(&req->item_ids,req->budget);
     free(req);
     return;
@@ -236,7 +239,7 @@ void
 stop_handler(void* args)
 {
     // TODO: Your code here.
-    printf("Handling StopHandlerReq: QUITTING %d\n",++numstopped);
+    printf("Handling StopHandlerReq: QUITTING\n");
     sthread_exit();  
 }
 
