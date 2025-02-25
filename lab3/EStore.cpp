@@ -28,6 +28,11 @@ EStore(bool enableFineMode)
             inv_mut.push_back(mut);
         }
     }
+    for(int i=0;i<INVENTORY_SIZE;i++) {
+        scond_t cond;
+        scond_init(&cond);
+        inv_cond.push_back(cond);
+    }
     //we keep this for when we want to change the shared store vars
     smutex_init(&esm);
     scond_init(&esc_pr);
@@ -42,6 +47,9 @@ EStore::
         for(int i=0;i<INVENTORY_SIZE;i++) {
             smutex_destroy(&inv_mut[i]);
         }
+    }
+    for(int i=0;i<INVENTORY_SIZE;i++) {
+        scond_destroy(&inv_cond[i]);
     }
     smutex_destroy(&esm);
     scond_destroy(&esc_pr);
@@ -84,19 +92,15 @@ void EStore::
 buyItem(int item_id, double budget)
 {
     assert(!fineModeEnabled());
+    scond_t *cond=&inv_cond[item_id];
     smutex_lock(&esm);
     if(item_id<0||item_id>INVENTORY_SIZE||!inventory[item_id].valid) {
         smutex_unlock(&esm);
         return;
     }
     while(inventory[item_id].quantity==0 || 
-            inventory[item_id].price-inventory[item_id].discount*(1-discount)+shippingCost>budget) {
-        //wait for inventory
-        if(inventory[item_id].quantity==0)
-            scond_wait(&esc_inv,&esm);
-        //wait for price
-        else
-            scond_wait(&esc_pr,&esm);
+            (inventory[item_id].price*(1-inventory[item_id].discount))*(1-discount)+shippingCost>budget) {
+        scond_wait(cond,&esm);
     }
     //we are able to buy
     inventory[item_id].quantity--;
@@ -168,9 +172,9 @@ buyManyItems(vector<int>* item_ids, double budget)
             all_in_stock=false;
             break;
         }
-        total+=inventory[item_id].price-inventory[item_id].discount*(1-discount)+shippingCost;
+        total+=(inventory[item_id].price*(1-inventory[item_id].discount))*(1-discount)+shippingCost;
     }
-    for(int i=0;i<(int)items.size();i++) {
+    for(int i=(int)items.size()-1;i>=0;i--) {
         if(all_in_stock&&total<=budget)
             inventory[items[i]].quantity--;
         smutex_unlock(&inv_mut[items[i]]);
@@ -178,6 +182,7 @@ buyManyItems(vector<int>* item_ids, double budget)
     return;
     // TODO: Your code here.
 }
+
 
 /*
  * ------------------------------------------------------------------
@@ -197,8 +202,9 @@ addItem(int item_id, int quantity, double price, double discount)
 {
     // TODO: Your code here.
     smutex_t *local;
-    if(fineModeEnabled()) 
+    if(fineModeEnabled()) {
         local=&inv_mut[item_id];
+    }
     else 
         local=&esm;
     smutex_lock(local);
@@ -266,9 +272,10 @@ addStock(int item_id, int count)
 {
     // TODO: Your code here.
     smutex_t *local;
+    scond_t *cond=&inv_cond[item_id];
     if(fineModeEnabled())
         local=&inv_mut[item_id];
-    else    
+    else 
         local=&esm;
     smutex_lock(local);
     if(!inventory[item_id].valid) {
@@ -276,7 +283,7 @@ addStock(int item_id, int count)
         return;
     }
     inventory[item_id].quantity+=count;
-    scond_broadcast(&esc_inv,local);
+    scond_broadcast(cond,local);
     smutex_unlock(local);
     return;
 }
@@ -300,9 +307,10 @@ priceItem(int item_id, double price)
 {
     // TODO: Your code here.
     smutex_t *local;
+    scond_t *cond=&inv_cond[item_id];
     if(fineModeEnabled())
         local=&inv_mut[item_id];
-    else    
+    else 
         local=&esm;
     smutex_lock(local);
     if(!inventory[item_id].valid) {
@@ -312,7 +320,7 @@ priceItem(int item_id, double price)
     double prev_price=inventory[item_id].price;
     inventory[item_id].price=price;
     if(price<prev_price) {
-        scond_broadcast(&esc_pr,local);
+        scond_broadcast(cond,local);
     }
     smutex_unlock(local);
     return;
@@ -337,9 +345,10 @@ discountItem(int item_id, double discount)
 {
     // TODO: Your code here.
     smutex_t *local;
+    scond_t *cond=&inv_cond[item_id];
     if(fineModeEnabled())
         local=&inv_mut[item_id];
-    else
+    else 
         local=&esm;
     smutex_lock(local);
     if(!inventory[item_id].valid) {
@@ -349,7 +358,7 @@ discountItem(int item_id, double discount)
     double prev_discount=inventory[item_id].discount;
     inventory[item_id].discount=discount;
     if(discount>prev_discount) {
-        scond_broadcast(&esc_pr,local);
+        scond_broadcast(cond,local);
     }
     smutex_unlock(local);
     return;

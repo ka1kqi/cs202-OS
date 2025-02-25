@@ -82,6 +82,7 @@ class EStore {
     //for fine grained locking, we lock every individual item
     //indexed same as inventory
     std::vector<smutex_t> inv_mut;
+    std::vector<scond_t> inv_cond;
 
     public:
 
