@@ -23,7 +23,7 @@ add_item_handler(void *args)
     printf("Handling AddItemReq: item_id - %d, quantity - %d, price - $%0.2lf, discount - %0.2lf\n",req->item_id,
                 req->quantity,req->price,req->discount);
     req->store->addItem(req->item_id,req->quantity,req->price,req->discount);
-    free(req);
+    delete req;
     return;
 }
 
@@ -47,7 +47,7 @@ remove_item_handler(void *args)
     struct RemoveItemReq *req=(RemoveItemReq*)args;
     printf("Handling RemoveItemReq: item_id - %d\n",req->item_id);
     req->store->removeItem(req->item_id);
-    free(req);
+    delete req;
     return;
 }
 
@@ -71,7 +71,7 @@ add_stock_handler(void *args)
     struct AddStockReq* req=(AddStockReq*)args;
     printf("Handling AddStockReq: item_id - %d, additional_stock - %d\n",req->item_id,req->additional_stock);
     req->store->addStock(req->item_id,req->additional_stock);
-    free(req);
+    delete req;
     return;
 }
 
@@ -95,7 +95,7 @@ change_item_price_handler(void *args)
     struct ChangeItemPriceReq *req=(ChangeItemPriceReq*)args;
     printf("Handling ChangeItemPriceReq: item_id - %d, new_price - $%0.2lf\n",req->item_id,req->new_price);
     req->store->priceItem(req->item_id,req->new_price);
-    free(req);
+    delete req;
     return;
 }
 
@@ -119,7 +119,7 @@ change_item_discount_handler(void *args)
     struct ChangeItemDiscountReq *req=(ChangeItemDiscountReq*)args;
     printf("Handling ChangeItemDiscountReq: item_id - %d, new_discount - %0.2lf\n",req->item_id,req->new_discount);
     req->store->discountItem(req->item_id,req->new_discount);
-    free(req);
+    delete req;
     return;
 }
 
@@ -143,7 +143,7 @@ set_shipping_cost_handler(void *args)
     struct SetShippingCostReq *req=(SetShippingCostReq*)args;
     printf("Handling SetShippingCostReq: new_cost - $%0.2lf\n",req->new_cost);
     req->store->setShippingCost(req->new_cost);
-    free(req);
+    delete req;
     return;
 }
 
@@ -167,7 +167,7 @@ set_store_discount_handler(void *args)
     struct SetStoreDiscountReq *req=(SetStoreDiscountReq*)args;
     printf("Handling setStoreDiscount: new_discount - %0.2lf\n",req->new_discount);
     req->store->setStoreDiscount(req->new_discount);
-    free(req);
+    delete req;
     return;
 }
 
@@ -190,7 +190,7 @@ buy_item_handler(void *args)
     struct BuyItemReq *req=(BuyItemReq*)args;
     printf("Handling BuyItemReq: item_id - %d, budget $%0.2lf\n",req->item_id,req->budget);
     req->store->buyItem(req->item_id,req->budget);
-    free(req);
+    delete req;
     return;
     // TODO: Your code here.
 }
@@ -219,7 +219,7 @@ buy_many_items_handler(void *args)
     }
     printf("\n");
     req->store->buyManyItems(&req->item_ids,req->budget);
-    free(req);
+    delete req;
     return;
 }
 
