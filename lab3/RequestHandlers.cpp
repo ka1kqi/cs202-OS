@@ -1,4 +1,6 @@
 #include "RequestHandlers.h"
+#include <string>
+#include <iostream>
 //why no provided includes :(
 /*
  * ------------------------------------------------------------------
@@ -213,11 +215,12 @@ buy_many_items_handler(void *args)
 {
     // TODO: Your code here.
     struct BuyManyItemsReq* req=(BuyManyItemsReq*)args;
-    printf("Handling BuyManyItemsReq: ");
+    std::string msg="Handling BuyManyItemsReq: ";
     for(int i=0;i<(int)req->item_ids.size();i++) {
-        printf("%d ",req->item_ids[i]);
+       msg=msg+std::to_string(req->item_ids[i])+" ";
     }
-    printf("\n");
+    msg+="\n";
+    std::cout<<msg;
     req->store->buyManyItems(&req->item_ids,req->budget);
     delete req;
     return;
