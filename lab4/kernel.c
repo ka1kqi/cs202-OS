@@ -88,7 +88,10 @@ void kernel(const char* command) {
     pageinfo_init();
     console_clear();
     timer_init(HZ);
-
+    
+    virtual_memory_map(kernel_pagetable,0,0,PROC_START_ADDR,PTE_P|PTE_W,NULL);
+    assign_physical_page(KERNEL_STACK_TOP-PAGESIZE,-2); //make sure that stsack page is assigned to kernel
+    virtual_memory_map(kernel_pagetable,(uintptr_t)0xB8000,(uintptr_t)0xB8000,PAGESIZE,PTE_P|PTE_U|PTE_W,NULL);// console
     // Set up process descriptors
     memset(processes, 0, sizeof(processes));
     for (pid_t i = 0; i < NPROC; i++) {
@@ -115,24 +118,59 @@ void kernel(const char* command) {
     run(&processes[1]);
 }
 
+//finds free page and allocates
+int proc_owner=-1;
+
+//create new page, we search page table for free page; when found we assign the page to this owner
+//and return as an address to a new pt
+//returns the address on success, null on failure
+x86_64_pagetable *alloc_proc_setup(void){ 
+    assert(proc_owner>0);
+    //look in memory for a place to put pt (L1 page table for process proc_owner)
+    for(int i=0;i<PAGENUMBER(MEMSIZE_PHYSICAL);i++) {
+        //search for free page
+        if(pageinfo[i].refcount==0 && pageinfo[i].owner==PO_FREE) {
+            int err = assign_physical_page((uintptr_t)PAGEADDRESS(i),proc_owner);
+            memset(PAGEADDRESS(i),0,PAGESIZE);
+            return err == 0 ? (x86_64_pagetable*)PAGEADDRESS(i) : NULL;
+        }
+    }
+    console_printf(CPOS(24, 0), 0x0C00,"OUT OF PHYSICAL MEMORY");
+    return NULL;
+}
+
+
+x86_64_pagetable *copy_pagetable(x86_64_pagetable *origin,int8_t owner) {
+    x86_64_pagetable *pt=alloc_proc_setup();
+    int err;
+    for(uintptr_t vn = 0;vn < PROC_START_ADDR; vn+=PAGESIZE) {
+        vamapping vmap = virtual_memory_lookup(origin,vn);
+        if(vmap.perm>0 && vmap.pa!=-1)
+            err = virtual_memory_map(pt,vn,vmap.pa,PAGESIZE,vmap.perm,&alloc_proc_setup);
+    }
+    assert(err == 0);
+    return pt;  
+}
 
 // process_setup(pid, program_number)
 //    Load application program `program_number` as process number `pid`.
 //    This loads the application's code and data into memory, sets its
 //    %rip and %rsp, gives it a stack page, and marks it as runnable.
-
 void process_setup(pid_t pid, int program_number) {
     process_init(&processes[pid], 0);
-    processes[pid].p_pagetable = kernel_pagetable;
-    ++pageinfo[PAGENUMBER(kernel_pagetable)].refcount;
+    proc_owner = pid;
+    x86_64_pagetable *pt = copy_pagetable(kernel_pagetable,pid);
+    processes[pid].p_pagetable = pt;
     int r = program_load(&processes[pid], program_number, NULL);
     assert(r >= 0);
-    processes[pid].p_registers.reg_rsp = PROC_START_ADDR + PROC_SIZE * pid;
-    uintptr_t stack_page = processes[pid].p_registers.reg_rsp - PAGESIZE;
-    assign_physical_page(stack_page, pid);
-    virtual_memory_map(processes[pid].p_pagetable, stack_page, stack_page,
-                       PAGESIZE, PTE_P | PTE_W | PTE_U, NULL);
+    uintptr_t stack_page = (uintptr_t)alloc_proc_setup(); //find page for physical stack page
+    processes[pid].p_registers.reg_rsp = MEMSIZE_VIRTUAL;
+    uintptr_t stack_page_virtual = processes[pid].p_registers.reg_rsp - PAGESIZE;
+    //assign_physical_page(stack_page, pid);
+    virtual_memory_map(processes[pid].p_pagetable, stack_page_virtual, stack_page,
+                       PAGESIZE, PTE_P | PTE_W | PTE_U, &alloc_proc_setup);
     processes[pid].p_state = P_RUNNABLE;
+    proc_owner = -1;
 }
 
 
@@ -153,7 +191,33 @@ int assign_physical_page(uintptr_t addr, int8_t owner) {
     }
 }
 
+//get next available proc, returns null if none found
+proc *get_next_proc(void) {
+    for(int i=1;i<NPROC;i++) {
+        if(processes[i].p_state == P_FREE)
+            return &processes[i];
+    }
+    return NULL;
+}
 
+//map the origin page table in child
+int fork=0;
+void map_child(x86_64_pagetable* origin, x86_64_pagetable *pt) {
+    //memset((void*)pt,0,PAGESIZE);
+    for(uintptr_t va=PROC_START_ADDR;va<MEMSIZE_VIRTUAL;va+=PAGESIZE) {
+        vamapping vmap = virtual_memory_lookup(origin,va);
+        if(vmap.perm & PTE_P && vmap.pa!=-1) {
+            if(vmap.perm & (PTE_W) && vmap.perm & (PTE_U)) {
+                uintptr_t pp = (uintptr_t)alloc_proc_setup();
+                memcpy((void*)pp,(void*)vmap.pa,PAGESIZE);
+                virtual_memory_map(pt,va,pp,PAGESIZE,vmap.perm,&alloc_proc_setup);
+            }
+            else {
+                virtual_memory_map(pt,va,vmap.pa,PAGESIZE,vmap.perm,&alloc_proc_setup);
+            }
+        }
+    }
+}  
 // exception(reg)
 //    Exception handler (for interrupts, traps, and faults).
 //
@@ -215,13 +279,15 @@ void exception(x86_64_registers* reg) {
         break;                  /* will not be reached */
 
     case INT_SYS_PAGE_ALLOC: {
-        uintptr_t addr = current->p_registers.reg_rdi;
-        int r = assign_physical_page(addr, current->p_pid);
-        if (r >= 0) {
-            virtual_memory_map(current->p_pagetable, addr, addr,
-                               PAGESIZE, PTE_P | PTE_W | PTE_U, NULL);
+        proc_owner = current->p_pid;
+        int r = -1;
+        uintptr_t addr = (uintptr_t)alloc_proc_setup();
+        if(addr) {
+            r = 0; 
+            virtual_memory_map(current->p_pagetable,current->p_registers.reg_rdi,addr,PAGESIZE, PTE_P|PTE_W|PTE_U,&alloc_proc_setup);
         }
         current->p_registers.reg_rax = r;
+        proc_owner = -1;
         break;
     }
 
@@ -249,13 +315,38 @@ void exception(x86_64_registers* reg) {
         break;
     }
 
+    case INT_SYS_FORK: {
+        proc *p = get_next_proc();
+        if(!p) {
+            current->p_registers.reg_rax = -1;
+            break;
+        }
+        proc_owner = p->p_pid;
+        fork=1;
+        x86_64_pagetable *pt = copy_pagetable(current->p_pagetable,p->p_pid);
+        
+        //int kstack = KERNEL_STACK_TOP-PAGESIZE;
+        //vamapping vam = virtual_memory_lookup(pt,kstack);
+        //assert(kstack == vam.pa);
+        //x86_64_pagetable *pt = alloc_proc_setup();
+        map_child(current->p_pagetable,pt);
+        //24 items to copy
+        processes[p->p_pid].p_registers = current->p_registers;
+        processes[p->p_pid].p_registers.reg_rax = 0;
+        processes[p->p_pid].p_pagetable = pt;
+        current->p_registers.reg_rax = p->p_pid;
+        
+        proc_owner = -1;
+        processes[p->p_pid].p_state = P_RUNNABLE;
+        break;
+    }
+
+
     default:
         panic("Unexpected exception %d!\n", reg->reg_intno);
         break;                  /* will not be reached */
 
     }
-
-
     // Return to the current process (or run something else).
     if (current->p_state == P_RUNNABLE) {
         run(current);
@@ -345,7 +436,6 @@ void check_page_table_mappings(x86_64_pagetable* pt) {
             assert(vam.perm & PTE_W);
         }
     }
-
     // kernel stack is identity mapped and writable
     uintptr_t kstack = KERNEL_STACK_TOP - PAGESIZE;
     vamapping vam = virtual_memory_lookup(pt, kstack);
