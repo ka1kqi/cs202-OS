@@ -201,7 +201,6 @@ proc *get_next_proc(void) {
 }
 
 //map the origin page table in child
-int fork=0;
 void map_child(x86_64_pagetable* origin, x86_64_pagetable *pt) {
     //memset((void*)pt,0,PAGESIZE);
     for(uintptr_t va=PROC_START_ADDR;va<MEMSIZE_VIRTUAL;va+=PAGESIZE) {
@@ -211,9 +210,6 @@ void map_child(x86_64_pagetable* origin, x86_64_pagetable *pt) {
                 uintptr_t pp = (uintptr_t)alloc_proc_setup();
                 memcpy((void*)pp,(void*)vmap.pa,PAGESIZE);
                 virtual_memory_map(pt,va,pp,PAGESIZE,vmap.perm,&alloc_proc_setup);
-            }
-            else {
-                virtual_memory_map(pt,va,vmap.pa,PAGESIZE,vmap.perm,&alloc_proc_setup);
             }
         }
     }
@@ -322,7 +318,6 @@ void exception(x86_64_registers* reg) {
             break;
         }
         proc_owner = p->p_pid;
-        fork=1;
         x86_64_pagetable *pt = copy_pagetable(current->p_pagetable,p->p_pid);
         
         //int kstack = KERNEL_STACK_TOP-PAGESIZE;
@@ -340,7 +335,6 @@ void exception(x86_64_registers* reg) {
         processes[p->p_pid].p_state = P_RUNNABLE;
         break;
     }
-
 
     default:
         panic("Unexpected exception %d!\n", reg->reg_intno);

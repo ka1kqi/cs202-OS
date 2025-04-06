@@ -1,20 +1,20 @@
-Name: 
-net ID: 
-NYU ID(N#): 
+Name: Kaikai DU
+net ID: axd2025
+NYU ID(N#): N12164047
 
 Collaborators (who you talked to about the lab, what you talked about):
+Sean Tang
 
-
-Source material that you consulted:
+Source material that you consulted: none
 
 
 Other acknowledgments:
 
 
-How long did this lab take you?
+How long did this lab take you? 20 hr
 
 
-Anything else you'd like us to know:
+Anything else you'd like us to know: no
 
 
 Extra credit exercise(s) (describe what you coded):
