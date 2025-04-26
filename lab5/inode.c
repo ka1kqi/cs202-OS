@@ -9,6 +9,7 @@
 #include "inode.h"
 #include "dir.h"
 
+uint32_t alloc_ind();
 
 // Find the disk block number slot for the 'filebno'th block in inode 'ino'.
 // Set '*ppdiskbno' to point to that slot.  The slot will be one of the
@@ -32,7 +33,7 @@
 //
 // Hints:
 //  - You may find it helpful to draw pictures.
-//  - Don't forget to clear any block you allocate.
+//  - Don't forget to clear any block you allocate. (memset is this probably)
 //  - Recall that diskblock2memaddr() converts from a disk block to an in-memory address
 //  - You may end up writing code with a similar structure three times.
 //  It may simplify your life to factor it into a helper function. 
@@ -40,7 +41,66 @@ int
 inode_block_walk(struct inode *ino, uint32_t filebno, uint32_t **ppdiskbno, bool alloc)
 {
 	// LAB: Your code here.
-	panic("inode_block_walk not implemented");
+	//out of range
+	if (filebno >= N_DIRECT+N_INDIRECT+N_DOUBLE)
+	 	return -EINVAL;
+
+	//if the bno is a direct block
+	if (filebno < N_DIRECT) {
+		*ppdiskbno = &ino->i_direct[filebno];
+		return 0;
+	}
+	//look inside the indirect block
+	if(ino->i_indirect == 0){
+		if(!alloc)
+		 	return -ENOENT;
+		ino->i_indirect = alloc_ind();
+	}
+	filebno-=N_DIRECT;
+	if(filebno < N_INDIRECT) {
+		if(ino->i_indirect == 0) {
+			if(!alloc)
+				return -ENOENT;
+			uint32_t bn = alloc_ind();
+			if(bn < 0)
+				return -ENOSPC;
+			ino->i_indirect = bn;
+		}
+		uint32_t* ind = (uint32_t*)diskblock2memaddr(ino->i_indirect);
+		*ppdiskbno = &ind[filebno];
+		return 0;
+	}
+	if(ino->i_double == 0) {
+		if(!alloc)
+		 	return -ENOENT;
+		uint32_t bn = alloc_ind();
+		if(bn < 0)
+			return -ENOSPC;
+		ino->i_double = bn;
+	}
+	uint32_t* dind = (uint32_t*)diskblock2memaddr(ino->i_double);
+	uint32_t ind1 = filebno / N_INDIRECT; //find ind block
+	uint32_t ind2 = filebno & N_INDIRECT;// find index in ind
+	if(dind[ind1]==0) {
+		if(!alloc)
+			return -ENOENT;
+		uint32_t bn = alloc_ind();
+		if(bn < 0)
+			return -ENOSPC;
+		dind[ind1] = bn;
+	}
+	uint32_t* ind = (uint32_t*)diskblock2memaddr(dind[ind1]);
+	*ppdiskbno = &ind[ind2];
+	return 0;
+}
+
+uint32_t alloc_ind(){
+	uint32_t bn = alloc_diskblock();
+	if(bn<0)
+		return -ENOSPC;
+	void* ba = diskblock2memaddr(bn);
+	memset(ba,0,BLKSIZE);
+	return bn;
 }
 
 // Set *blk to the address in memory where the filebno'th block of
@@ -59,7 +119,18 @@ int
 inode_get_block(struct inode *ino, uint32_t filebno, char **blk)
 {
 	// LAB: Your code here.
-	panic("inode_get_block not implemented");
+	uint32_t *blkptr;
+	int err = inode_block_walk(ino,filebno,&blkptr,true);
+	if(err < 0)
+		 return err;
+	if(*blkptr == 0) {
+		uint32_t bn = alloc_diskblock();
+		if (bn < 0)
+		 	return -ENOSPC;
+		*blkptr = bn;
+	}
+	*blk = (char*)diskblock2memaddr(*blkptr);
+	return err;
 }
 
 // Create "path".  On success set *pino to point at the inode and return 0.
@@ -213,9 +284,30 @@ inode_truncate_blocks(struct inode *ino, uint32_t newsize)
 {
 	int r;
 	uint32_t bno, old_nblocks, new_nblocks;
+	uint32_t sz = ino->i_size;
+	old_nblocks = ROUNDUP(sz, BLKSIZE) / BLKSIZE;
+	new_nblocks = ROUNDUP(newsize, BLKSIZE) / BLKSIZE;
 
-	// LAB: Your code here.
-	panic("inode_truncate_blocks not implemented");
+	for(int i=new_nblocks;i<old_nblocks;i++) {
+		inode_free_fileblock(ino,i);
+	}
+
+	if(new_nblocks <= N_DIRECT && ino->i_indirect) {
+		free_diskblock(ino->i_indirect);
+		ino->i_indirect = 0;
+	}
+
+	if (new_nblocks <= N_DIRECT + N_INDIRECT && ino->i_double) {
+		uint32_t *dind = (uint32_t*)diskblock2memaddr(ino->i_double);
+		for (uint32_t i = 0; i < N_INDIRECT; i++) {
+			if (dind[i]) {
+				free_diskblock(dind[i]); //free each indirect block
+				dind[i] = 0;
+			}
+		}
+		free_diskblock(ino->i_double); //free the double-indirect block
+		ino->i_double = 0;
+	}
 }
 
 // Set the size of inode ino, truncating or extending as necessary.
@@ -294,7 +386,18 @@ int
 inode_unlink(const char *path)
 {
 	// LAB: Your code here.
-	panic("inode_unlink not implemented");
+	int r;
+	struct dirent* dr;
+	struct inode* ino;
+	if((r = walk_path(path,0,&ino,&dr,0)) < 0)
+		return -ENOENT;
+	if(--ino->i_nlink == 0) {
+		uint32_t bno = ((char*)ino - (char*)diskmap) / BLKSIZE;
+		inode_free(bno);
+	}
+	dr->d_inum = 0;
+	memset(dr->d_name,0,strlen(dr->d_name));
+	return 0;
 }
 
 // Link the inode at the location srcpath to the new location dstpath.
@@ -311,7 +414,22 @@ int
 inode_link(const char *srcpath, const char *dstpath)
 {
 	// LAB: Your code here.
-	panic("inode_link not implemented");
+	int r;
+	struct inode *ino,*dir,*destdir;
+	struct dirent *dirent;
+	char* last;
+	if(r = walk_path(srcpath,&dir,&ino,0,0)<0)
+		return r;
+	if (r = walk_path(dstpath,&destdir,0,0,&last)<0);
+		return r;
+	if(dir_lookup(destdir,last,0,0) == 0)
+	 	return -EEXIST;
+	if(r = dir_alloc_dirent(destdir,&dirent)<0)
+		return r;
+	strncpy(dirent->d_name,strlen(last),last);
+	dirent->d_inum = ((char*)ino - (char*)diskmap) / BLKSIZE;
+	ino->i_nlink++;
+	return 0;
 }
 
 // Return information about the specified inode.
